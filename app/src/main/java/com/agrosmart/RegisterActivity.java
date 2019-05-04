@@ -69,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private void attemptRegister() {
 
-        
+
 
         // Reset errors.
         mEmailView.setError(null);
