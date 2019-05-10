@@ -1,4 +1,4 @@
-package com.agrosmart.ui.main;
+package com.agrosmart;
 
 /**
  * Created by Hugo Mochão on 25/05/2018.
