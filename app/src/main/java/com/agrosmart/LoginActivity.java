@@ -8,18 +8,18 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.agrosmart.Utils.InformationChecker;
+import com.agrosmart.exceptions.InvalidPasswordException;
+import com.agrosmart.exceptions.InvalidUsernameException;
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkResponse;
@@ -44,74 +44,64 @@ import java.util.Map;
 public class LoginActivity extends AppCompatActivity {
 
 
+    public static final String PREFS = "Prefs";
+    public static final String KEEP_CREDENTIALS_STATUS = "checked";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String INVALID_PASSWORD = "Password inválida";
+    public static final String INVALID_USERNAME = "Campo não pode estar vazio";
+    public static final String ENDPOINT = "https://jersey-scmu-server.appspot.com/rest/login";
+
     // UI references.
-    private AutoCompleteTextView mUsernameView;
-    private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
-    private ImageView mLogoView;
+    private AutoCompleteTextView usernameTextView;
+    private EditText passwordTextView;
     private Context mContext;
-    private CheckBox mCheckBox;
-    private String usernome;
+    private CheckBox keepCredentialCheckBox;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // Set up the login form.
-        mUsernameView = (AutoCompleteTextView) findViewById(R.id.username);
 
+        //Load UI views
+        usernameTextView = (AutoCompleteTextView) findViewById(R.id.username);
+        passwordTextView = (EditText) findViewById(R.id.password);
+        keepCredentialCheckBox = (CheckBox) findViewById(R.id.checkBox);
 
-        mPasswordView = (EditText) findViewById(R.id.password);
-        mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.username || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        mCheckBox = (CheckBox) findViewById(R.id.checkBox);
-        boolean isChecked = getSharedPreferences("Prefs", MODE_PRIVATE).getBoolean("checked", false);
-        if (isChecked) {
-            mCheckBox.setChecked(true);
-            mUsernameView.setText(getSharedPreferences("Prefs", MODE_PRIVATE).getString("username", ""));
-            mPasswordView.setText(getSharedPreferences("Prefs", MODE_PRIVATE).getString("password", ""));
+        //Setup UI Views
+        if (getSharedPreferences(PREFS, MODE_PRIVATE).getBoolean(KEEP_CREDENTIALS_STATUS, false)) {
+            keepCredentialCheckBox.setChecked(true);
+            usernameTextView.setText(getSharedPreferences(PREFS, MODE_PRIVATE).getString(USERNAME, ""));
+            passwordTextView.setText(getSharedPreferences(PREFS, MODE_PRIVATE).getString(PASSWORD, ""));
         }
 
-        SharedPreferences.Editor editor = getSharedPreferences("Prefs", MODE_PRIVATE).edit();
-        editor.clear();
-        editor.commit();
-
-        usernome = getSharedPreferences("Prefs", MODE_PRIVATE).getString("username", null);
-
-        Button mEmailSignInButton = (Button) findViewById(R.id.btn_login);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button loginButton = (Button) findViewById(R.id.btn_login);
+        loginButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                login();
             }
         });
 
-        TextView mRegisterTextView = (TextView) findViewById(R.id.registar_textView);
-        mRegisterTextView.setOnClickListener(new OnClickListener() {
+        TextView registerTextView = (TextView) findViewById(R.id.registar_textView);
+        registerTextView.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                registar();
+                register();
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
-        mLogoView = findViewById(R.id.imageLogo);
         mContext = this;
     }
 
-    private void registar() {
+    private void clearSharedPreferences() {
+        SharedPreferences.Editor editor = getSharedPreferences("Prefs", MODE_PRIVATE).edit();
+        editor.clear();
+        editor.commit();
+    }
+
+    private void register() {
         Intent myIntent = new Intent(LoginActivity.this, RegisterActivity.class);
         LoginActivity.this.startActivity(myIntent);
     }
@@ -122,58 +112,52 @@ public class LoginActivity extends AppCompatActivity {
      * If there are form errors (invalid email, missing fields, etc.), the
      * errors are presented and no actual login attempt is made.
      */
-    private void attemptLogin() {
+    private void login() {
 
-        // Reset errors.
-        mUsernameView.setError(null);
-        mPasswordView.setError(null);
+        resetLoginErrors();
 
         // Store values at the time of the login attempt.
-        String email = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        String username = usernameTextView.getText().toString();
+        String password = passwordTextView.getText().toString();
 
         boolean cancel = false;
-        View focusView = null;
+        View focusedView = null;
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError("Password inválida");
-            focusView = mPasswordView;
-            cancel = true;
+        try {
+
+            // Check for a valid password, if the user entered one.
+            if (TextUtils.isEmpty(password) || !InformationChecker.validPassword(password)) {
+                passwordTextView.setError(INVALID_PASSWORD);
+                focusedView = passwordTextView;
+                throw new InvalidPasswordException();
+            }
+
+            // Check for a valid email address.
+            if (TextUtils.isEmpty(username)) {
+                usernameTextView.setError(INVALID_USERNAME);
+                focusedView = usernameTextView;
+                throw new InvalidUsernameException();
+            }
+
+            loginVolley(username, password);
+
+        }catch (InvalidPasswordException | InvalidUsernameException invalidationException) {
+            focusedView.requestFocus();
         }
+    }
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mUsernameView.setError("Campo não pode estar vazio");
-            focusView = mUsernameView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mUsernameView.setError("Username inválido");
-            focusView = mUsernameView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            //showProgress(true);
-
-            loginVolley(email, password);
-            //mAuthTask = new UserLoginTask(email, password);
-            //mAuthTask.execute((Void) null);
-        }
+    private void resetLoginErrors() {
+        // Reset errors.
+        usernameTextView.setError(null);
+        passwordTextView.setError(null);
     }
 
     private void loginVolley(final String email, final String password) {
 
         String tag_json_obj = "json_obj_req";
-        String url = "https://novaleaf-197719.appspot.com/rest/login";
 
         JSONObject jsonObject = new JSONObject();
+
         try {
 
             jsonObject.put("password", password);
@@ -190,14 +174,14 @@ public class LoginActivity extends AppCompatActivity {
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            if (usernome != null)
-                                if (!usernome.equals(email)) {
+                            if (username != null)
+                                if (!username.equals(email)) {
                                     editor.clear();
                                     Log.d("ya", "deu clear!!!");
                                 }
                             editor.putString("username", email);
                             editor.putString("password", password);
-                            if (mCheckBox.isChecked())
+                            if (keepCredentialCheckBox.isChecked())
                                 editor.putBoolean("checked", true);
                             else
                                 editor.putBoolean("checked", false);
@@ -319,17 +303,4 @@ public class LoginActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(jsonObjectRequest, "UserInfo");
 
     }
-
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return true;
-        //       return email.contains("@");
-    }
-
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return true;
-        //       return password.length() > 4;
-    }
-
 }
