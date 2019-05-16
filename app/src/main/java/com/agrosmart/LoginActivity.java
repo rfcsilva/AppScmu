@@ -24,7 +24,6 @@ import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URLConnection;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,8 +50,8 @@ public class LoginActivity extends AppCompatActivity {
     //error messages
     public static final String INVALID_PASSWORD = "Password inválida";
     public static final String INVALID_USERNAME = "Campo não pode estar vazio";
-    public static final String LOGIN_ENDPOINT = "https://jersey-scmu-server.appspot.com/rest/login";
-    public static final String USER_ENDPOINT = "https://jersey-scmu-server.appspot.com/rest/withtoken/user";
+    public static final String LOGIN_ENDPOINT = "https://jersey-scmu-server.appspot.com/rest/user/login";
+    public static final String USER_ENDPOINT = "https://jersey-scmu-server.appspot.com/rest/withtoken/user/";
 
     //static variables
     private static final Gson gson = new Gson();
