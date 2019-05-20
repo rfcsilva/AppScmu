@@ -127,10 +127,10 @@ public class RegisterActivity extends AppCompatActivity {
             JSONObject jsonObject = new JSONObject();
 
             jsonObject.put("username", username);
-            Log.e("User", username);
-            Log.e("Pass", password);
-            Log.e("Passconf", passwordConf);
-            Log.e("Email", email);
+            Log.d("User", username);
+            Log.d("Pass", password);
+            Log.d("Passconf", passwordConf);
+            Log.d("Email", email);
             jsonObject.put("password", password);
             jsonObject.put("confirmation_password", passwordConf);
             jsonObject.put("email", email);

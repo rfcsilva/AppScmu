@@ -31,7 +31,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.google.gson.Gson;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -61,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
     public static final String USER_ENDPOINT = "https://jersey-scmu-server.appspot.com/rest/withtoken/user/";
 
     //static variables
-    private static final Gson gson = new Gson();
+
     public static final String AUTHORIZATION = "Authorization";
     public static final String POR_FAVOR_VERIFIQUE_A_SUA_LIGAÇÃO = "Por favor verifique a sua ligação";
     private static final String WRONGPASSWORD = "Password errada.";
@@ -151,15 +151,17 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void loginVolley(LoginData loginData) {
+    private void loginVolley(final LoginData loginData) {
 
         final SharedPreferences.Editor editor = getSharedPreferences("Prefs", MODE_PRIVATE).edit();
-        JSONObject jsonObject;
-        ProgressDialog pDialog = showProgressDialog();
+
+        final ProgressDialog pDialog = showProgressDialog();
 
         try {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("username", loginData.getUsername());
+            jsonObject.put("password", loginData.getPassword());
 
-            jsonObject = new JSONObject(gson.toJson(loginData));
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                     Request.Method.POST,
                     LOGIN_ENDPOINT,

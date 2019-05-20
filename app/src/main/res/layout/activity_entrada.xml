@@ -20,7 +20,7 @@
         android:layout_marginTop="8dp"
         android:fontFamily="@font/anson_regular"
         android:gravity="center_vertical"
-        android:text="Mais Verde"
+        android:text="Agro Smart"
         android:textAlignment="center"
         android:textAllCaps="true"
         android:textColor="@color/snow"
@@ -33,20 +33,20 @@
 
     <ImageView
         android:id="@+id/imageView3"
-        android:layout_width="171dp"
-        android:layout_height="144dp"
+        android:layout_width="150dp"
+        android:layout_height="123dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.316"
-        app:srcCompat="@mipmap/ic_novaleaf_foreground"/>
+        app:srcCompat="@mipmap/ic_foreground" />
 
 </android.support.constraint.ConstraintLayout>

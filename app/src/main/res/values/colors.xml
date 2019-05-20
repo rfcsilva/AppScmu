@@ -20,4 +20,13 @@
     <color name="textcolor">#232323</color>
     <color name="coloryellow">#ece643</color>
     <color name="colorred">#c4070d</color>
+
+
+    <color name="blue">#116F0E</color>
+
+    <color name="temperature_background">@color/blue</color>
+    <color name="temperature_text">@android:color/white</color>
+
+    <color name="green_dot_big">@color/blue</color>
+    <color name="green_dot_small">@color/blue</color>
 </resources>
