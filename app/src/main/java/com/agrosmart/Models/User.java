@@ -8,8 +8,6 @@ public class User{
     public static final String EMAIL = "email";
     public static final String ROLE = "role";
 
-
-
     public static final String TYPE = "User";
 
     public String username;
@@ -24,6 +22,10 @@ public class User{
         this.name = name;
         this.email = email;
         this.role = role;
+    }
+
+    public String toString(){
+        return username + ":" + name + ":" + email + ":" + role;
     }
 
 }

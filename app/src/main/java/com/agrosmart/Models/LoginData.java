@@ -10,7 +10,7 @@ public class LoginData {
         this.password = password;
     }
 
-    public String getUsername() {
-        return getUsername();
-    }
+    public String getUsername() {    return username; }
+
+    public String getPassword() { return password; }
 }
