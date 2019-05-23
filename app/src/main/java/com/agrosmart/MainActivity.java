@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -40,10 +39,13 @@ public class MainActivity extends AppCompatActivity {
     private final int[] pics = {R.drawable.p1, R.drawable.p2, R.drawable.p3, R.drawable.p4, R.drawable.p5};
     private final int[] maps = {R.drawable.map_paris, R.drawable.map_seoul, R.drawable.map_london, R.drawable.map_beijing, R.drawable.map_greece};
     private final int[] descriptions = {R.string.text1, R.string.text2, R.string.text3, R.string.text4, R.string.text5};
-    private final String[] countries = {"Bina´s estufa", "FIFO MAMAQUI", "LONDON", "BEIJING", "THIRA"};
-    private final String[] places = {"Nao empina", "Gwanghwamun", "Tower Bridge", "Temple of Heaven", "Aegeana Sea"};
+    private final String[] countries = {"Amadora", "Cova", "LONDON", "BEIJING", "THIRA"};
+    private final String[] places = {"Estufa de morangos", "Estufa de tomates", "Tower Bridge", "Temple of Heaven", "Aegeana Sea"};
     private final String[] temperatures = {"21°C", "19°C", "17°C", "23°C", "20°C"};
-    private final String[] times = {"Aug 1 - Dec 15    7:00-18:00", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
+    private final String[] humidity = {"Humidade: 23%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
+    private final String[] luminosity = {"Luminosidade: 23%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
+    private final String[] waterlevel = {"Nível de água: 20%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
+
 
     private final SliderAdapter sliderAdapter = new SliderAdapter(pics, 20, new OnCardClickListener());
 
@@ -51,9 +53,11 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ImageSwitcher mapSwitcher;
     private TextSwitcher temperatureSwitcher;
+    private TextSwitcher temperatureSwitcher2;
     private TextSwitcher placeSwitcher;
-    private TextSwitcher clockSwitcher;
-    private TextSwitcher descriptionsSwitcher;
+    private TextSwitcher humiditySwitcher;
+    private TextSwitcher luminositySwitcher;
+    private TextSwitcher waterlevelSwitcher;
     private View greenDot;
 
     private TextView country1TextView;
@@ -109,19 +113,32 @@ public class MainActivity extends AppCompatActivity {
         temperatureSwitcher.setFactory(new TextViewFactory(R.style.TemperatureTextView, true));
         temperatureSwitcher.setCurrentText(temperatures[0]);
 
+        temperatureSwitcher2 = (TextSwitcher) findViewById(R.id.ts_temperature2);
+        temperatureSwitcher2.setFactory(new TextViewFactory(R.style.ClockTextView, true));
+        temperatureSwitcher2.setCurrentText(temperatures[0]);
+
         placeSwitcher = (TextSwitcher) findViewById(R.id.ts_place);
         placeSwitcher.setFactory(new TextViewFactory(R.style.PlaceTextView, false));
         placeSwitcher.setCurrentText(places[0]);
 
-        clockSwitcher = (TextSwitcher) findViewById(R.id.ts_clock);
-        clockSwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
-        clockSwitcher.setCurrentText(times[0]);
+        humiditySwitcher = (TextSwitcher) findViewById(R.id.ts_humidity);
+        humiditySwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
+        humiditySwitcher.setCurrentText(humidity[0]);
 
-        descriptionsSwitcher = (TextSwitcher) findViewById(R.id.ts_description);
-        descriptionsSwitcher.setInAnimation(this, android.R.anim.fade_in);
-        descriptionsSwitcher.setOutAnimation(this, android.R.anim.fade_out);
-        descriptionsSwitcher.setFactory(new TextViewFactory(R.style.DescriptionTextView, false));
-        descriptionsSwitcher.setCurrentText(getString(descriptions[0]));
+        luminositySwitcher = (TextSwitcher) findViewById(R.id.ts_luminosity);
+        luminositySwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
+        luminositySwitcher.setCurrentText(luminosity[0]);
+
+        waterlevelSwitcher = (TextSwitcher) findViewById(R.id.ts_waterlevel);
+        waterlevelSwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
+        waterlevelSwitcher.setCurrentText(waterlevel[0]);
+
+        /**
+        waterlevelSwitcher = (TextSwitcher) findViewById(R.id.ts_description);
+        waterlevelSwitcher.setInAnimation(this, android.R.anim.fade_in);
+        waterlevelSwitcher.setOutAnimation(this, android.R.anim.fade_out);
+        waterlevelSwitcher.setFactory(new TextViewFactory(R.style.DescriptionTextView, false));
+        waterlevelSwitcher.setCurrentText(getString(descriptions[0]));*/
 
         mapSwitcher = (ImageSwitcher) findViewById(R.id.ts_map);
         mapSwitcher.setInAnimation(this, R.anim.fade_in);
@@ -242,15 +259,27 @@ public class MainActivity extends AppCompatActivity {
         temperatureSwitcher.setOutAnimation(MainActivity.this, animH[1]);
         temperatureSwitcher.setText(temperatures[pos % temperatures.length]);
 
+        temperatureSwitcher2.setInAnimation(MainActivity.this, animH[0]);
+        temperatureSwitcher2.setOutAnimation(MainActivity.this, animH[1]);
+        temperatureSwitcher2.setText(temperatures[pos % temperatures.length]);
+
         placeSwitcher.setInAnimation(MainActivity.this, animV[0]);
         placeSwitcher.setOutAnimation(MainActivity.this, animV[1]);
         placeSwitcher.setText(places[pos % places.length]);
 
-        clockSwitcher.setInAnimation(MainActivity.this, animV[0]);
-        clockSwitcher.setOutAnimation(MainActivity.this, animV[1]);
-        clockSwitcher.setText(times[pos % times.length]);
+        humiditySwitcher.setInAnimation(MainActivity.this, animV[0]);
+        humiditySwitcher.setOutAnimation(MainActivity.this, animV[1]);
+        humiditySwitcher.setText(humidity[pos % humidity.length]);
 
-        descriptionsSwitcher.setText(getString(descriptions[pos % descriptions.length]));
+        luminositySwitcher.setInAnimation(MainActivity.this, animV[0]);
+        luminositySwitcher.setOutAnimation(MainActivity.this, animV[1]);
+        luminositySwitcher.setText(luminosity[pos % luminosity.length]);
+
+        waterlevelSwitcher.setInAnimation(MainActivity.this, animV[0]);
+        waterlevelSwitcher.setOutAnimation(MainActivity.this, animV[1]);
+        waterlevelSwitcher.setText(waterlevel[pos % waterlevel.length]);
+
+        //waterlevelSwitcher.setText(getString(descriptions[pos % descriptions.length]));
 
         showMap(maps[pos % maps.length]);
 

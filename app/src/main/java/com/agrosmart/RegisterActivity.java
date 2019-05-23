@@ -134,9 +134,9 @@ public class RegisterActivity extends AppCompatActivity {
             jsonObject.put("password", password);
             jsonObject.put("confirmation_password", passwordConf);
             jsonObject.put("email", email);
-            jsonObject.put("role", "volunteer");
+            jsonObject.put("role", "owner");
 
-            String url = "https://novaleaf-197719.appspot.com/rest/register/";
+            String url = "https://jersey-scmu-server.appspot.com/rest/register";
             final ProgressDialog pDialog = new ProgressDialog(this);
             pDialog.setMessage("A carregar...");
             pDialog.show();

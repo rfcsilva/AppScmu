@@ -182,9 +182,9 @@ public class LoginActivity extends AppCompatActivity {
                             pDialog.hide();
                             voleyGetInfo();
                             // TODO: call the main activity (to be implemented) with data in the intent
-                          //  Intent myIntent = new Intent(LoginActivity.this, FeedActivity.class);
+                            Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
 
-                            //LoginActivity.this.startActivity(myIntent);
+                            LoginActivity.this.startActivity(myIntent);
                             finish();
                         }
                     }, new Response.ErrorListener() {
