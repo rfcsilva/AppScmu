@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".ConfigurarLuminosidadeActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_weight="1"
+            android:background="?attr/colorPrimary"
+            app:layout_scrollFlags="scroll|enterAlways|snap"
+            app:popupTheme="@style/AppTheme.PopupOverlay">
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/graphLuminosidade"
+        android:layout_width="match_parent"
+        android:layout_height="200dip"
+        android:layout_marginTop="16dp"/>
+
+    <TextView
+        android:id="@+id/textHumidadeLuminosidade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ems="10"
+        android:text="Luminosidade atual: 10%"
+        android:fontFamily="@font/roboto_light"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    <TextView
+        android:id="@+id/textWaterLevelBetween"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:fontFamily="@font/roboto_light"
+        android:text="Manter a luminosidade entre: "
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <com.jaygoo.widget.RangeSeekBar
+        android:id="@+id/seekbarLuminosidade"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        app:rsb_min="0"
+        app:rsb_max="24"
+        app:rsb_mode="range"
+        app:rsb_progress_height="4dp"
+        app:rsb_tick_mark_text_array="@array/luminosidadeArray"
+        app:rsb_range_interval="4"
+        app:rsb_progress_default_color="@color/rsbColorSeekBarDefault"
+        app:rsb_tick_mark_text_margin="17dp"
+        app:rsb_thumb_size="20dp"
+        app:rsb_indicator_padding_bottom="10dp"
+        app:rsb_indicator_width="40dp"
+        app:rsb_indicator_height="40dp"
+        app:rsb_thumb_scale_ratio="1.2"
+        />
+
+</LinearLayout>

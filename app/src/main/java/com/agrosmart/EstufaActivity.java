@@ -1,19 +1,12 @@
 package com.agrosmart;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
-import com.jjoe64.graphview.DefaultLabelFormatter;
-import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
@@ -41,7 +34,30 @@ public class EstufaActivity extends AppCompatActivity {
         mListener =  new ItemFragment.OnListFragmentInteractionListener() {
             @Override
             public void onEditInteraction(DataGraph item) {
-                Intent intent = new Intent(EstufaActivity.this, ConfiguracoesActivity.class);
+                Intent intent;
+                switch (item.getTitulo()){
+                    case "Luminosidade":
+                        intent = new Intent(EstufaActivity.this, ConfigurarLuminosidadeActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "Humidade do ar"  :
+                        intent = new Intent(EstufaActivity.this, ConfigurarHumidadeArActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "Humidade do solo"  :
+                        intent = new Intent(EstufaActivity.this, ConfigurarHumidadeSoloActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "Nivel de Água":
+                        intent = new Intent(EstufaActivity.this, ConfugurarNivelAguaActivity.class);
+                        startActivity(intent);
+                        break;
+                    case "Temperatura":
+                        intent = new Intent(EstufaActivity.this, ConfigurarTemperaturaActivity.class);
+                        startActivity(intent);
+                        break;
+                }
+
             }
         };
 
@@ -56,7 +72,8 @@ public class EstufaActivity extends AppCompatActivity {
         graphs = new ArrayList<>();
 
         graphs.add(new DataGraph("Luminosidade", series));
-        graphs.add(new DataGraph("Humidade", series));
+        graphs.add(new DataGraph("Humidade do ar", series));
+        graphs.add(new DataGraph("Humidade do solo", series));
         graphs.add(new DataGraph("Nivel de Água", series));
         graphs.add(new DataGraph("Temperatura", series));
 
@@ -77,24 +94,5 @@ public class EstufaActivity extends AppCompatActivity {
         finish();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.edit_menu, menu);
-        return true;
-    }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        int id = item.getItemId();
-
-        if (id == R.id.edit_prefrences) {
-            Intent intent = new Intent(EstufaActivity.this, ConfiguracoesActivity.class);
-            startActivity(intent);
-        }
-
-
-        return super.onOptionsItemSelected(item);
-    }
 }

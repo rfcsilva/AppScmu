@@ -16,9 +16,20 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.AgroSmart">
-        <activity android:name=".ConfiguracoesActivity"
-            android:label="Configurações"></activity>
-        <activity android:name=".EstufaActivity"></activity>
+        <activity android:name=".ConfigurarHumidadeSoloActivity"></activity>
+        <activity
+            android:name=".ConfugurarNivelAguaActivity"
+            android:label="Nível de Água" />
+        <activity
+            android:name=".ConfigurarLuminosidadeActivity"
+            android:label="Luminosidade" />
+        <activity
+            android:name=".ConfigurarHumidadeArActivity"
+            android:label="Humidade" />
+        <activity
+            android:name=".ConfigurarTemperaturaActivity"
+            android:label="Temperatura" />
+        <activity android:name=".EstufaActivity" />
         <activity android:name=".MinhasEstufasActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
