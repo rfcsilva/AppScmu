@@ -14,7 +14,7 @@
     </style>
 
     <style name="AppTheme.AgroSmart">
-        <item name="colorPrimary">@color/charcoal</item>
+        <item name="colorPrimary">@color/colorToolbar</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorGreen</item>
         <item name="windowActionBar">false</item>
