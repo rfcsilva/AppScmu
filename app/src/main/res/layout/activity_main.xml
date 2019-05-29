@@ -133,7 +133,7 @@
         </FrameLayout>
 
         <FrameLayout
-            android:id="@+id/fm_humidity"
+            android:id="@+id/fm_humidityair"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/fm_luminosity"
@@ -145,10 +145,34 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="30dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/clock"/>
+                android:src="@drawable/ic_humidity_air"/>
 
             <TextSwitcher
-                android:id="@+id/ts_humidity"
+                android:id="@+id/ts_humidityair"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="@dimen/left_offset"/>
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/fm_humiditysoil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/fm_humidityair"
+            android:layout_marginTop="5dp">
+
+            <ImageView
+                android:layout_width="13dp"
+                android:layout_height="13dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="30dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_humidity_soil"/>
+
+            <TextSwitcher
+                android:id="@+id/ts_humiditysoil"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -160,7 +184,7 @@
             android:id="@+id/fm_waterlevel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/fm_humidity"
+            android:layout_below="@id/fm_humiditysoil"
             android:layout_marginTop="5dp">
 
             <ImageView
@@ -169,7 +193,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="30dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/clock"/>
+                android:src="@drawable/ic_opacity_grey_24dp"/>
 
             <TextSwitcher
                 android:id="@+id/ts_waterlevel"
@@ -193,7 +217,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="30dp"
                 android:scaleType="fitCenter"
-                android:src="@drawable/clock"/>
+                android:src="@drawable/ic_thermometer"/>
 
             <TextSwitcher
                 android:id="@+id/ts_temperature2"

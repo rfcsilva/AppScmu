@@ -4,6 +4,7 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -23,31 +25,46 @@ import android.widget.ImageSwitcher;
 import android.widget.ImageView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 
 import com.agrosmart.Utils.DecodeBitmapTask;
 import com.agrosmart.cards.SliderAdapter;
+import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.ramotion.cardslider.CardSliderLayoutManager;
 import com.ramotion.cardslider.CardSnapHelper;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
     private final int[][] dotCoords = new int[5][2];
-    private final int[] pics = {R.drawable.p1, R.drawable.p2, R.drawable.p3, R.drawable.p4, R.drawable.p5};
+    private final int[] pics = {R.drawable.estufa1, R.drawable.estufa2, R.drawable.estufa3, R.drawable.estufa4, R.drawable.estufa5};
     private final int[] maps = {R.drawable.map_paris, R.drawable.map_seoul, R.drawable.map_london, R.drawable.map_beijing, R.drawable.map_greece};
     private final int[] descriptions = {R.string.text1, R.string.text2, R.string.text3, R.string.text4, R.string.text5};
     private final String[] countries = {"Amadora", "Cova", "LONDON", "BEIJING", "THIRA"};
     private final String[] places = {"Estufa de morangos", "Estufa de tomates", "Tower Bridge", "Temple of Heaven", "Aegeana Sea"};
     private final String[] temperatures = {"21°C", "19°C", "17°C", "23°C", "20°C"};
-    private final String[] humidity = {"Humidade: 23%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
+    private final String[] humidityAir = {"Humidade do ar: 23%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
+    private final String[] humiditySoil = {"Humidade do solo: 23%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
     private final String[] luminosity = {"Luminosidade: 23%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
     private final String[] waterlevel = {"Nível de água: 20%", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"};
 
 
-    private final SliderAdapter sliderAdapter = new SliderAdapter(pics, 20, new OnCardClickListener());
+    private final SliderAdapter sliderAdapter = new SliderAdapter(pics, 5, new OnCardClickListener());
 
     private CardSliderLayoutManager layoutManger;
     private RecyclerView recyclerView;
@@ -55,7 +72,8 @@ public class MainActivity extends AppCompatActivity {
     private TextSwitcher temperatureSwitcher;
     private TextSwitcher temperatureSwitcher2;
     private TextSwitcher placeSwitcher;
-    private TextSwitcher humiditySwitcher;
+    private TextSwitcher humidityAirSwitcher;
+    private TextSwitcher humiditySoilSwitcher;
     private TextSwitcher luminositySwitcher;
     private TextSwitcher waterlevelSwitcher;
     private View greenDot;
@@ -121,9 +139,13 @@ public class MainActivity extends AppCompatActivity {
         placeSwitcher.setFactory(new TextViewFactory(R.style.PlaceTextView, false));
         placeSwitcher.setCurrentText(places[0]);
 
-        humiditySwitcher = (TextSwitcher) findViewById(R.id.ts_humidity);
-        humiditySwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
-        humiditySwitcher.setCurrentText(humidity[0]);
+        humidityAirSwitcher = (TextSwitcher) findViewById(R.id.ts_humidityair);
+        humidityAirSwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
+        humidityAirSwitcher.setCurrentText(humidityAir[0]);
+
+        humiditySoilSwitcher = (TextSwitcher) findViewById(R.id.ts_humiditysoil);
+        humiditySoilSwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
+        humiditySoilSwitcher.setCurrentText(humiditySoil[0]);
 
         luminositySwitcher = (TextSwitcher) findViewById(R.id.ts_luminosity);
         luminositySwitcher.setFactory(new TextViewFactory(R.style.ClockTextView, false));
@@ -267,9 +289,13 @@ public class MainActivity extends AppCompatActivity {
         placeSwitcher.setOutAnimation(MainActivity.this, animV[1]);
         placeSwitcher.setText(places[pos % places.length]);
 
-        humiditySwitcher.setInAnimation(MainActivity.this, animV[0]);
-        humiditySwitcher.setOutAnimation(MainActivity.this, animV[1]);
-        humiditySwitcher.setText(humidity[pos % humidity.length]);
+        humidityAirSwitcher.setInAnimation(MainActivity.this, animV[0]);
+        humidityAirSwitcher.setOutAnimation(MainActivity.this, animV[1]);
+        humidityAirSwitcher.setText(humidityAir[pos % humidityAir.length]);
+
+        humiditySoilSwitcher.setInAnimation(MainActivity.this, animV[0]);
+        humiditySoilSwitcher.setOutAnimation(MainActivity.this, animV[1]);
+        humiditySoilSwitcher.setText(humiditySoil[pos % humiditySoil.length]);
 
         luminositySwitcher.setInAnimation(MainActivity.this, animV[0]);
         luminositySwitcher.setOutAnimation(MainActivity.this, animV[1]);
@@ -380,5 +406,57 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+
+
+    private void voleyGetEstufas() {
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
+        String url = "https://novaleaf-197719.appspot.com/rest/withtoken/users/profileinfo?user=" +
+                sharedPreferences.getString("username", "erro");
+        final String token = sharedPreferences.getString("tokenID", "erro");
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+
+                Log.i("TokenAreaPessoal", response.toString());
+                //Log.i("TokenAreaPessoal", token.toString());
+                // TODO: store the token in the SharedPreferences
+
+                SharedPreferences.Editor editor = getSharedPreferences("Prefs", MODE_PRIVATE).edit();
+                try {
+                    final JSONArray list = response.getJSONArray("list");
+                    if (!response.isNull("list"))
+                        for (int i = 0; i < list.length(); i++) {
+
+                        }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("erro", "Error: " + error.getMessage());
+                Toast.makeText(MainActivity.this, "Por favor verifique a sua ligação", Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Authorization", token);
+                return headers;
+            }
+        };
+
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest, "UserInfo");
+
+    }
+
 
 }
