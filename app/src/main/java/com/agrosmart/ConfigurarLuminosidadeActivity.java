@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -30,6 +31,8 @@ public class ConfigurarLuminosidadeActivity extends AppCompatActivity {
     GraphView graphView;
     RangeSeekBar rangeSeekBar;
     boolean changed;
+    float initleftValue;
+    float initRightValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,22 +86,38 @@ public class ConfigurarLuminosidadeActivity extends AppCompatActivity {
             }
         });
 
+
+
+        initleftValue = rangeSeekBar.getLineLeft();
+        Log.d("line left", " : "+initleftValue);
+
+        initRightValue = rangeSeekBar.getLineRight();
+        Log.d("line left", " : "+initRightValue);
+
     }
 
 
     @Override
     public void onBackPressed() {
-        if (changed){
-            volleyConfigurar();
+        if (rangeSeekBar.getLineLeft() != initleftValue || initRightValue != rangeSeekBar.getLineRight()){
+            float newLeft = rangeSeekBar.getLineLeft();
+            float newRigth = rangeSeekBar.getLineRight();
+            float center = (newLeft + newRigth) / 2;
+            float deviation = center - newLeft;
+            volleyConfigurar(center, deviation);
         }
         super.onBackPressed();
     }
 
 
-    private void volleyConfigurar() {
+    private void volleyConfigurar(float center, float deviation) {
+
+        final SharedPreferences.Editor editor = getSharedPreferences("Prefs", MODE_PRIVATE).edit();
+
 
         String tag_json_obj = "json_obj_req";
-        String url = "https://novaleaf-197719.appspot.com/rest/withtoken/groups/member/comment?group_id=";
+        String url = "https://jersey-scmu-server.appspot.com/rest/withtoken/config/new/" +
+                getSharedPreferences("Prefs", MODE_PRIVATE).getString("greenhouseId", "erro");
 
         JSONObject conf = new JSONObject();
         SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
@@ -106,25 +125,16 @@ public class ConfigurarLuminosidadeActivity extends AppCompatActivity {
         try {
 
             //conf.put("id", com.getAuthor());
-            conf.put("author", "TODO");
-            conf.put("message", "TODO");
-            conf.put("image", "TODO");
-            conf.put("creation_date", "TODO");
+            conf.put("avgLuminosity", center);
+            conf.put("luminosityDeviation", deviation);
+
             //conf.put("id", com.getId());
             //conf.put("image", sharedPreferences.getString("image_user", null));
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, conf,
                     new Response.Listener<JSONObject>() {
                         @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                conf.put("image", "TODO");
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            //comentarios.get(comentarios.indexOf(com)).setId();
-                        }
+                        public void onResponse(JSONObject response) {}
                     }, new Response.ErrorListener() {
 
                 @Override

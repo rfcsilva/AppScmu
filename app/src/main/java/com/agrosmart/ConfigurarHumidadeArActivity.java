@@ -143,15 +143,7 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, conf,
                     new Response.Listener<JSONObject>() {
                         @Override
-                        public void onResponse(JSONObject response) {
-                            try {
-                                conf.put("image", "TODO");
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            //comentarios.get(comentarios.indexOf(com)).setId();
-                        }
+                        public void onResponse(JSONObject response) {}
                     }, new Response.ErrorListener() {
 
                 @Override
