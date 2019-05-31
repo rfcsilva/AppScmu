@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         initCountryText();
         initSwitchers();
         initGreenDot();
+        voleyGetEstufas();
     }
 
     private void initRecyclerView() {
@@ -413,8 +414,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
-        String url = "https://novaleaf-197719.appspot.com/rest/withtoken/users/profileinfo?user=" +
-                sharedPreferences.getString("username", "erro");
+        String url = "https://jersey-scmu-server.appspot.com/rest/withtoken/greenhouse/";
         final String token = sharedPreferences.getString("tokenID", "erro");
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -428,9 +428,23 @@ public class MainActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = getSharedPreferences("Prefs", MODE_PRIVATE).edit();
                 try {
                     final JSONArray list = response.getJSONArray("list");
+                    Log.d("LISTA ", list.toString());
                     if (!response.isNull("list"))
                         for (int i = 0; i < list.length(); i++) {
+                            if (list.getJSONObject(i).getString("center_coordinates")!=null){
 
+                                //TODO: CENTRAR NAS COORDENADAS
+                            }
+
+                            if (list.getJSONObject(i).getString("id")!=null){
+                                editor.putString("greenhouseId", list.getJSONObject(i).getString("id"));
+                            }
+
+                            if (list.getJSONObject(i).getString("CreatorUserName")!=null){
+                                editor.putString("creatorName", list.getJSONObject(i).getString("CreatorUserName"));
+                            }
+
+                            editor.commit();
                         }
                 } catch (JSONException e) {
                     e.printStackTrace();

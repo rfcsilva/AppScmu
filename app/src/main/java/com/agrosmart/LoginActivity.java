@@ -180,7 +180,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             editor.commit();
                             pDialog.hide();
-                            voleyGetInfo();
+                            //voleyGetInfo();
                             // TODO: call the main activity (to be implemented) with data in the intent
                             Intent myIntent = new Intent(LoginActivity.this, MainActivity.class);
 
