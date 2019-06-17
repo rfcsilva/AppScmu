@@ -75,22 +75,60 @@ public class EstufaActivity extends AppCompatActivity {
 
             }
         };
+        SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
 
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
+        LineGraphSeries<DataPoint> luminosity = new LineGraphSeries<DataPoint>(new DataPoint[]{
+
+                new DataPoint(0, sharedPreferences.getInt("avgLuminosity", 15)+3),
+                new DataPoint(1, sharedPreferences.getInt("avgLuminosity", 15)-2),
+                new DataPoint(2, sharedPreferences.getInt("avgLuminosity", 15)-6),
+                new DataPoint(3, sharedPreferences.getInt("avgLuminosity", 15) - 5),
+                new DataPoint(4, sharedPreferences.getInt("avgLuminosity", 15))
+        });
+
+        LineGraphSeries<DataPoint> airHumidity = new LineGraphSeries<DataPoint>(new DataPoint[]{
+
+                new DataPoint(0, sharedPreferences.getInt("avgAirHumidity", 15)-10),
+                new DataPoint(1, sharedPreferences.getInt("avgAirHumidity", 15)+1),
+                new DataPoint(2, sharedPreferences.getInt("avgAirHumidity", 15)-2),
+                new DataPoint(3, sharedPreferences.getInt("avgAirHumidity", 15) + 5),
+                new DataPoint(4, sharedPreferences.getInt("avgAirHumidity", 15))
+        });
+
+        LineGraphSeries<DataPoint> soilHumidity = new LineGraphSeries<DataPoint>(new DataPoint[]{
+
+                new DataPoint(0, sharedPreferences.getInt("avgSoilHumidity", 15)-1),
+                new DataPoint(1, sharedPreferences.getInt("avgSoilHumidity", 15)- 2),
+                new DataPoint(2, sharedPreferences.getInt("avgSoilHumidity", 15)+7),
+                new DataPoint(3, sharedPreferences.getInt("avgSoilHumidity", 15) - 2),
+                new DataPoint(4, sharedPreferences.getInt("avgSoilHumidity", 15))
+        });
+
+        LineGraphSeries<DataPoint> waterLevel = new LineGraphSeries<DataPoint>(new DataPoint[]{
+
+                new DataPoint(0, sharedPreferences.getInt("avgSteam", 15)+2),
+                new DataPoint(1, sharedPreferences.getInt("avgSteam", 15)+ 4),
+                new DataPoint(2, sharedPreferences.getInt("avgSteam", 15)+7),
+                new DataPoint(3, sharedPreferences.getInt("avgSteam", 15) + 2),
+                new DataPoint(4, sharedPreferences.getInt("avgSteam", 15))
+        });
+
+        LineGraphSeries<DataPoint> temp = new LineGraphSeries<DataPoint>(new DataPoint[]{
+
+                new DataPoint(0, sharedPreferences.getInt("textTemp", 15)-1),
+                new DataPoint(1, sharedPreferences.getInt("textTemp", 15) -2),
+                new DataPoint(2, sharedPreferences.getInt("textTemp", 15) +7),
+                new DataPoint(3, sharedPreferences.getInt("textTemp", 15) + 2),
+                new DataPoint(4, sharedPreferences.getInt("textTemp", 15))
         });
 
         graphs = new ArrayList<>();
 
-        graphs.add(new DataGraph("Luminosidade", series));
-        graphs.add(new DataGraph("Humidade do ar", series));
-        graphs.add(new DataGraph("Humidade do solo", series));
-        graphs.add(new DataGraph("Nivel de Água", series));
-        graphs.add(new DataGraph("Temperatura", series));
+        graphs.add(new DataGraph("Luminosidade", luminosity));
+        graphs.add(new DataGraph("Humidade do ar", airHumidity));
+        graphs.add(new DataGraph("Humidade do solo", soilHumidity));
+        graphs.add(new DataGraph("Nivel de Água", waterLevel));
+        graphs.add(new DataGraph("Temperatura", temp));
 
         adapter = new MyItemRecyclerViewAdapter(graphs, mListener, EstufaActivity.this);
         recyclerView = (RecyclerView) findViewById(R.id.container);

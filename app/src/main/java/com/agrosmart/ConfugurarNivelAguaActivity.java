@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -33,6 +34,7 @@ public class ConfugurarNivelAguaActivity extends AppCompatActivity {
     boolean changed;
     float initleftValue;
     float initRightValue;
+    TextView textSteam;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,26 +56,33 @@ public class ConfugurarNivelAguaActivity extends AppCompatActivity {
 
 
         changed = false;
+        textSteam = (TextView) findViewById(R.id.textNivelAgua);
         graphView = (GraphView) findViewById(R.id.graphNivelAgua);
-
+        SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
+                new DataPoint(0, sharedPreferences.getInt("avgSteam", 15)+2),
+                new DataPoint(1, sharedPreferences.getInt("avgSteam", 15)+ 4),
+                new DataPoint(2, sharedPreferences.getInt("avgSteam", 15)+7),
+                new DataPoint(3, sharedPreferences.getInt("avgSteam", 15) + 2),
+                new DataPoint(4, sharedPreferences.getInt("avgSteam", 15))
         });
 
         graphView.addSeries(series);
 
         rangeSeekBar = (RangeSeekBar) findViewById(R.id.seekbarNivelAgua);
-        rangeSeekBar.setValue(20,30);
+
+
+        textSteam.setText("Nível de água atual: " + sharedPreferences.getInt("avgSteam", 15) + "%");
+
+
+        rangeSeekBar.setValue(sharedPreferences.getInt("avgSteam", 15) - sharedPreferences.getInt("steamDeviation", 15),
+                sharedPreferences.getInt("avgSteam", 15) + sharedPreferences.getInt("steamDeviation", 15));
         rangeSeekBar.setOnRangeChangedListener(new OnRangeChangedListener() {
             @Override
             public void onRangeChanged(RangeSeekBar view, float leftValue, float rightValue, boolean isFromUser) {
-                int min = (int) leftValue;
-                int max = (int) rightValue;
-                Toast.makeText(ConfugurarNivelAguaActivity.this, "min = " + min + " right = " + max, Toast.LENGTH_SHORT).show();
+                initleftValue = leftValue;
+                initRightValue = rightValue;
+                changed = true;
             }
 
             @Override
@@ -87,20 +96,14 @@ public class ConfugurarNivelAguaActivity extends AppCompatActivity {
             }
         });
 
-        initleftValue = rangeSeekBar.getLineLeft();
-        Log.d("line left", " : "+initleftValue);
 
-        initRightValue = rangeSeekBar.getLineRight();
-        Log.d("line left", " : "+initRightValue);
     }
 
     @Override
     public void onBackPressed() {
-        if (rangeSeekBar.getLineLeft() != initleftValue || initRightValue != rangeSeekBar.getLineRight()){
-            float newLeft = rangeSeekBar.getLineLeft();
-            float newRigth = rangeSeekBar.getLineRight();
-            float center = (newLeft + newRigth) / 2;
-            float deviation = center - newLeft;
+        if (changed){
+            float center = (initleftValue + initRightValue) / 2;
+            float deviation = center - initleftValue;
             volleyConfigurar(center, deviation);
         }
         super.onBackPressed();
@@ -122,13 +125,27 @@ public class ConfugurarNivelAguaActivity extends AppCompatActivity {
         try {
 
             //conf.put("id", com.getAuthor());
+            conf.put("avgLuminosity", sharedPreferences.getInt("avgLuminosity", 15));
+            conf.put("luminosityDeviation", sharedPreferences.getInt("luminosityDeviation", 15));
+
+            conf.put("avgAirHumidity", sharedPreferences.getInt("avgAirHumidity", 15));
+            conf.put("airHumidityDeviation", sharedPreferences.getInt("airHumidityDeviation", 15));
+
+            conf.put("avgSoilHumidity", sharedPreferences.getInt("avgSoilHumidity", 15));
+            conf.put("soilHumidityDeviation", sharedPreferences.getInt("soilHumidityDeviation", 15));
+
+            conf.put("avgTemperature", sharedPreferences.getInt("avgTemperature", 15));
+            conf.put("tempDeviation", sharedPreferences.getInt("tempDeviation", 15));
+
             conf.put("avgSteam", center);
             conf.put("steamDeviation", deviation);
-
+            editor.putInt("avgSteam", (int) center);
+            editor.putInt("steamDeviation", (int) deviation);
+            editor.commit();
             //conf.put("id", com.getId());
             //conf.put("image", sharedPreferences.getString("image_user", null));
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, conf,
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, conf,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {}
@@ -136,7 +153,7 @@ public class ConfugurarNivelAguaActivity extends AppCompatActivity {
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(ConfugurarNivelAguaActivity.this, "Erro de ligação", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ConfugurarNivelAguaActivity.this, "Erro de ligação", Toast.LENGTH_SHORT).show();
                 }
             }) {
                 @Override

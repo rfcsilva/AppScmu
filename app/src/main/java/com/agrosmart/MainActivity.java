@@ -52,7 +52,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private final int[][] dotCoords = new int[5][2];
-    private final int[] pics = {R.drawable.estufa1, R.drawable.estufa2, R.drawable.estufa3, R.drawable.estufa4, R.drawable.estufa5};
+    private final int[] pics = {R.drawable.estufacultivomorangos, R.drawable.estufa2, R.drawable.estufa3, R.drawable.estufa4, R.drawable.estufa5};
     private final int[] maps = {R.drawable.map_paris, R.drawable.map_seoul, R.drawable.map_london, R.drawable.map_beijing, R.drawable.map_greece};
     private final int[] descriptions = {R.string.text1, R.string.text2, R.string.text3, R.string.text4, R.string.text5};
     private final String[] countries = {"Amadora", "Cova", "LONDON", "BEIJING", "THIRA"};
@@ -440,16 +440,19 @@ public class MainActivity extends AppCompatActivity {
                                 editor.putString("greenhouseId", list.getJSONObject(i).getString("id"));
                             }
 
-                            if (list.getJSONObject(i).getString("CreatorUserName")!=null){
-                                editor.putString("creatorName", list.getJSONObject(i).getString("CreatorUserName"));
+                            if (list.getJSONObject(i).getString("creatorUserName")!=null){
+                                editor.putString("creatorName", list.getJSONObject(i).getString("creatorUserName"));
                             }
 
                             editor.commit();
                         }
+                    volleyGetData("https://jersey-scmu-server.appspot.com/rest/withtoken/config/GreenHouse@2.000000,2.000000");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
+
+
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
@@ -472,5 +475,105 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void volleyGetData(String url) {
+
+
+        SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
+        final String token = sharedPreferences.getString("tokenID", "erro");
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                SharedPreferences.Editor editor = getSharedPreferences("Prefs", MODE_PRIVATE).edit();
+                Log.i("TokenAreaPessoal", response.toString());
+                //Log.i("TokenAreaPessoal", token.toString());
+                // TODO: store the token in the SharedPreferences
+
+
+                try {
+                    if(response.has("avgTemperature")) {
+                        int temp = (int) response.getDouble("avgTemperature");
+                        temperatureSwitcher.setCurrentText(temp + "ºC");
+                        temperatureSwitcher2.setCurrentText("Temperatura: " +temp + "ºC");
+                        editor.putInt("avgTemperature", temp);
+                    }
+
+                    if(response.has("tempDeviation")) {
+                        int temp = (int) response.getDouble("tempDeviation");
+                        editor.putInt("tempDeviation", temp);
+                    }
+
+
+                    if(response.has("avgAirHumidity")) {
+                        int airHum = (int) response.getDouble("avgAirHumidity");
+                        humidityAirSwitcher.setCurrentText("Humidade do ar: " + airHum + "%");
+                        editor.putInt("avgAirHumidity", airHum);
+                    }
+
+                    if(response.has("airHumidityDeviation")) {
+                        int temp = (int) response.getDouble("airHumidityDeviation");
+                        editor.putInt("airHumidityDeviation", temp);
+                    }
+
+                    if(response.has("avgSoilHumidity")) {
+                        int soilHum = (int) response.getDouble("avgSoilHumidity");
+                        humiditySoilSwitcher.setCurrentText("Humidade do solo: " + soilHum + "%");
+                        editor.putInt("avgSoilHumidity", soilHum);
+                    }
+
+                    if(response.has("soilHumidityDeviation")) {
+                        int temp = (int) response.getDouble("soilHumidityDeviation");
+                        editor.putInt("soilHumidityDeviation", temp);
+                    }
+
+                    if(response.has("avgLuminosity")) {
+                        int lum = (int) response.getDouble("avgLuminosity");
+                        luminositySwitcher.setCurrentText("Luminosidade: " + lum + "%");
+                        editor.putInt("avgLuminosity", lum);
+                    }
+
+                    if(response.has("luminosityDeviation")) {
+                        int temp = (int) response.getDouble("luminosityDeviation");
+                        editor.putInt("luminosityDeviation", temp);
+                    }
+
+                    if(response.has("avgSteam")) {
+                        int steam = (int) response.getDouble("avgSteam");
+                        waterlevelSwitcher.setCurrentText("Nível da água: " + steam + "%");
+                        editor.putInt("avgSteam", steam);
+                    }
+
+                    if(response.has("steamDeviation")) {
+                        int temp = (int) response.getDouble("steamDeviation");
+                        editor.putInt("steamDeviation", temp);
+                    }
+                    editor.commit();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("erro", "Error: " + error.getMessage());
+                Toast.makeText(MainActivity.this, "Por favor verifique a sua ligação", Toast.LENGTH_SHORT).show();
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Authorization", token);
+                return headers;
+            }
+        };
+
+        jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        AppController.getInstance().addToRequestQueue(jsonObjectRequest, "UserInfo");
+
+    }
 
 }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -33,6 +34,7 @@ public class ConfigurarHumidadeSoloActivity extends AppCompatActivity {
     boolean changed;
     float initleftValue;
     float initRightValue;
+    TextView textHumidade;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,26 +55,32 @@ public class ConfigurarHumidadeSoloActivity extends AppCompatActivity {
         }
 
         graphView = (GraphView) findViewById(R.id.graphHumidade);
+        SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
 
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
-                new DataPoint(0, 1),
-                new DataPoint(1, 5),
-                new DataPoint(2, 3),
-                new DataPoint(3, 2),
-                new DataPoint(4, 6)
+                new DataPoint(0, sharedPreferences.getInt("avgSoilHumidity", 15)-1),
+                new DataPoint(1, sharedPreferences.getInt("avgSoilHumidity", 15)- 2),
+                new DataPoint(2, sharedPreferences.getInt("avgSoilHumidity", 15)+7),
+                new DataPoint(3, sharedPreferences.getInt("avgSoilHumidity", 15) - 2),
+                new DataPoint(4, sharedPreferences.getInt("avgSoilHumidity", 15))
         });
 
         changed = false;
-
+        textHumidade = (TextView) findViewById(R.id.textHumidadeSolo);
         graphView.addSeries(series);
         rangeSeekBar = (RangeSeekBar) findViewById(R.id.seekbarHumidadeSolo);
-        rangeSeekBar.setValue(20,30);
+
+        textHumidade.setText("Humidade do solo atual: " + sharedPreferences.getInt("avgSoilHumidity", 15) + "%");
+
+
+        rangeSeekBar.setValue(sharedPreferences.getInt("avgSoilHumidity", 15) - sharedPreferences.getInt("soilHumidityDeviation", 15),
+                sharedPreferences.getInt("avgSoilHumidity", 15) + sharedPreferences.getInt("soilHumidityDeviation", 15));
         rangeSeekBar.setOnRangeChangedListener(new OnRangeChangedListener() {
             @Override
             public void onRangeChanged(RangeSeekBar view, float leftValue, float rightValue, boolean isFromUser) {
-                int min = (int) leftValue;
-                int max = (int) rightValue;
-                Toast.makeText(ConfigurarHumidadeSoloActivity.this, "min = " + min + " right = " + max, Toast.LENGTH_SHORT).show();
+                initleftValue = leftValue;
+                initRightValue = rightValue;
+                changed = true;
             }
 
             @Override
@@ -87,21 +95,15 @@ public class ConfigurarHumidadeSoloActivity extends AppCompatActivity {
         });
 
 
-        initleftValue = rangeSeekBar.getLineLeft();
-        Log.d("line left", " : "+initleftValue);
 
-        initRightValue = rangeSeekBar.getLineRight();
-        Log.d("line left", " : "+initRightValue);
     }
 
 
     @Override
     public void onBackPressed() {
-        if (rangeSeekBar.getLineLeft() != initleftValue || initRightValue != rangeSeekBar.getLineRight()){
-            float newLeft = rangeSeekBar.getLineLeft();
-            float newRigth = rangeSeekBar.getLineRight();
-            float center = (newLeft + newRigth) / 2;
-            float deviation = center - newLeft;
+        if (changed){
+            float center = (initleftValue + initRightValue) / 2;
+            float deviation = center - initleftValue;
             volleyConfigurar(center, deviation);
         }
         super.onBackPressed();
@@ -123,13 +125,27 @@ public class ConfigurarHumidadeSoloActivity extends AppCompatActivity {
         try {
 
             //conf.put("id", com.getAuthor());
+            conf.put("avgLuminosity", sharedPreferences.getInt("avgLuminosity", 15));
+            conf.put("luminosityDeviation", sharedPreferences.getInt("luminosityDeviation", 15));
+
+            conf.put("avgAirHumidity", sharedPreferences.getInt("avgAirHumidity", 15));
+            conf.put("airHumidityDeviation", sharedPreferences.getInt("airHumidityDeviation", 15));
+
             conf.put("avgSoilHumidity", center);
             conf.put("soilHumidityDeviation", deviation);
+            editor.putInt("avgSoilHumidity", (int) center);
+            editor.putInt("soilHumidityDeviation", (int) deviation);
 
+            conf.put("avgTemperature", sharedPreferences.getInt("avgTemperature", 15));
+            conf.put("tempDeviation", sharedPreferences.getInt("tempDeviation", 15));
+
+            conf.put("avgSteam", sharedPreferences.getInt("avgSteam", 15));
+            conf.put("steamDeviation", sharedPreferences.getInt("steamDeviation", 15));
+            editor.commit();
             //conf.put("id", com.getId());
             //conf.put("image", sharedPreferences.getString("image_user", null));
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, conf,
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, conf,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {}
@@ -137,7 +153,7 @@ public class ConfigurarHumidadeSoloActivity extends AppCompatActivity {
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(ConfigurarHumidadeSoloActivity.this, "Erro de ligação", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ConfigurarHumidadeSoloActivity.this, "Erro de ligação", Toast.LENGTH_SHORT).show();
                 }
             }) {
                 @Override

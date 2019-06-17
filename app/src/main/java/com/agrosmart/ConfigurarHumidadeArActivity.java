@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -34,6 +35,7 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
     boolean changed;
     float initleftValue;
     float initRightValue;
+    TextView textHumidade;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +54,18 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
             // Show the Up button in the action bar.
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+        SharedPreferences sharedPreferences = getSharedPreferences("Prefs", MODE_PRIVATE);
 
         graphView = (GraphView) findViewById(R.id.graphHumidade);
-
+        textHumidade = (TextView) findViewById(R.id.textHumidadeAr);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<DataPoint>(new DataPoint[]{
 
 
-                new DataPoint(0, 30),
-                new DataPoint(8, 65),
-                new DataPoint(16, 70),
-                new DataPoint(24, 30),
+                new DataPoint(0, sharedPreferences.getInt("avgAirHumidity", 15)-10),
+                new DataPoint(1, sharedPreferences.getInt("avgAirHumidity", 15)+1),
+                new DataPoint(2, sharedPreferences.getInt("avgAirHumidity", 15)-2),
+                new DataPoint(3, sharedPreferences.getInt("avgAirHumidity", 15) + 5),
+                new DataPoint(4, sharedPreferences.getInt("avgAirHumidity", 15))
 
         });
 
@@ -70,7 +74,7 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
 
         graphView.getViewport().setXAxisBoundsManual(true);
         graphView.getViewport().setMinX(0);
-        graphView.getViewport().setMaxX(24);
+        graphView.getViewport().setMaxX(4);
 
         // enable scaling and scrolling
         graphView.getViewport().setScalable(true);
@@ -78,13 +82,17 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
 
         graphView.addSeries(series);
         rangeSeekBar = (RangeSeekBar) findViewById(R.id.seekbarHumidadeAr);
-        rangeSeekBar.setValue(20,30);
+
+        textHumidade.setText("Humidade do ar atual: " + sharedPreferences.getInt("avgAirHumidity", 15) + "%");
+
+        rangeSeekBar.setValue(sharedPreferences.getInt("avgAirHumidity", 15) - sharedPreferences.getInt("airHumidityDeviation", 15),
+                sharedPreferences.getInt("avgAirHumidity", 15) + sharedPreferences.getInt("airHumidityDeviation", 15));
         rangeSeekBar.setOnRangeChangedListener(new OnRangeChangedListener() {
             @Override
             public void onRangeChanged(RangeSeekBar view, float leftValue, float rightValue, boolean isFromUser) {
-                int min = (int) leftValue;
-                int max = (int) rightValue;
-                Toast.makeText(ConfigurarHumidadeArActivity.this, "min = " + min + " right = " + max, Toast.LENGTH_SHORT).show();
+                initleftValue = leftValue;
+                initRightValue = rightValue;
+                changed = true;
             }
 
             @Override
@@ -98,22 +106,16 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
             }
         });
 
-        initleftValue = rangeSeekBar.getLineLeft();
-        Log.d("line left", " : "+initleftValue);
 
-        initRightValue = rangeSeekBar.getLineRight();
-        Log.d("line left", " : "+initRightValue);
 
 
     }
 
     @Override
     public void onBackPressed() {
-        if (rangeSeekBar.getLineLeft() != initleftValue || initRightValue != rangeSeekBar.getLineRight()){
-            float newLeft = rangeSeekBar.getLineLeft();
-            float newRigth = rangeSeekBar.getLineRight();
-            float center = (newLeft + newRigth) / 2;
-            float deviation = center - newLeft;
+        if (changed){
+            float center = (initleftValue + initRightValue) / 2;
+            float deviation = center - initleftValue;
             volleyConfigurar(center, deviation);
         }
         super.onBackPressed();
@@ -134,13 +136,27 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
         try {
 
             //conf.put("id", com.getAuthor());
+            conf.put("avgLuminosity", sharedPreferences.getInt("avgLuminosity", 15));
+            conf.put("luminosityDeviation", sharedPreferences.getInt("luminosityDeviation", 15));
+
             conf.put("avgAirHumidity", center);
             conf.put("airHumidityDeviation", deviation);
+            editor.putInt("avgAirHumidity", (int) center);
+            editor.putInt("airHumidityDeviation", (int) deviation);
 
+            conf.put("avgSoilHumidity", sharedPreferences.getInt("avgSoilHumidity", 15));
+            conf.put("soilHumidityDeviation", sharedPreferences.getInt("soilHumidityDeviation", 15));
+
+            conf.put("avgTemperature", sharedPreferences.getInt("avgTemperature", 15));
+            conf.put("tempDeviation", sharedPreferences.getInt("tempDeviation", 15));
+
+            conf.put("avgSteam", sharedPreferences.getInt("avgSteam", 15));
+            conf.put("steamDeviation", sharedPreferences.getInt("steamDeviation", 15));
+            editor.commit();
             //conf.put("id", com.getId());
             //conf.put("image", sharedPreferences.getString("image_user", null));
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, conf,
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, conf,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {}
@@ -148,7 +164,7 @@ public class ConfigurarHumidadeArActivity extends AppCompatActivity {
 
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Toast.makeText(ConfigurarHumidadeArActivity.this, "Erro de ligação", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(ConfigurarHumidadeArActivity.this, "Erro de ligação", Toast.LENGTH_SHORT).show();
                 }
             }) {
                 @Override
